@@ -3,6 +3,7 @@ import { Task } from '../models/task.js';
 import logger from '../logs/logger.js';
 import { Status } from '../constants/index.js';
 import { encriptar } from "../common/bycrypt.js";
+import { Op } from 'sequelize';  
 
 async function getUsers(req, res, next){
     try {
@@ -141,6 +142,47 @@ async function getTask(req, res, next) {
     }
 }
 
+async function getPagination(req, res, next) {    
+    
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const search = req.query.search || '';
+    const orderBy = req.query.orderBy || 'id';
+    const orderDir = req.query.orderDir || 'DESC';
+
+    console.log("page "+page)
+    console.log("limit "+limit)
+    console.log("search "+search)
+    console.log("orderBy "+orderBy)
+    console.log("orderDir "+orderDir)
+    const offset = (page - 1) * limit;    
+    try {       
+            
+        const { count, rows } = await User.findAndCountAll({
+            attributes: ['id', 'username', 'status'],
+            where: {
+                username: {
+                [Op.iLike]: `%${search}%`,
+                },
+            },
+            order: [[orderBy, orderDir]],
+            limit,
+            offset,
+            });
+            const totalPages = Math.ceil(count / limit);
+
+            res.json({
+                total: count,
+                page,
+                pages: totalPages,
+                data: rows,
+            });
+    } catch (error) {
+        console.log(error)
+        next(error)    
+    }
+}
+
 export default{
     getUsers,
     createUser,
@@ -148,6 +190,7 @@ export default{
     updateUser,
     deleteUser,
     activateInactivate,
-    getTask
+    getTask,
+    getPagination
 };
 

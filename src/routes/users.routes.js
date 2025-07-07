@@ -20,4 +20,7 @@ router
     .patch(authenticateToken, usersController.activateInactivate)
     
 router.get('/:id/task',authenticateToken,usersController.getTask)
+
+router.get('/list/pagination', usersController.getPagination);
+
 export default router;
