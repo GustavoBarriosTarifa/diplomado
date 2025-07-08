@@ -19,7 +19,7 @@ router
     .delete(authenticateToken, usersController.deleteUser)
     .patch(authenticateToken, usersController.activateInactivate)
     
-router.get('/:id/task',authenticateToken,usersController.getTask)
+router.get('/:id/tasks',authenticateToken,usersController.getTask)
 
 router.get('/list/pagination', usersController.getPagination);
 
